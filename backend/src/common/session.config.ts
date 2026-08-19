@@ -1,0 +1,10 @@
+export const SESSION_CONFIG = {
+  ACCESS_TOKEN_TTL: '15m',
+  REFRESH_TOKEN_TTL_DAYS: 7,
+  SESSION_TTL_DAYS: 30,
+  ACCESS_COOKIE_MAX_AGE: 15 * 60 * 1000, // 15 mins
+  REFRESH_COOKIE_MAX_AGE: 7 * 24 * 60 * 60 * 1000, // 7 days
+  MFA_CHALLENGE_TTL: 5 * 60 * 1000, // 5 mins
+  MFA_SETUP_TTL: 10 * 60 * 1000, // 10 mins
+  CSRF_COOKIE_MAX_AGE: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
