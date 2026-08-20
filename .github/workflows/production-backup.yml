@@ -1,0 +1,42 @@
+name: Update Production Backup
+
+on:
+  deployment_status:
+
+permissions:
+  contents: write
+  deployments: read
+
+jobs:
+  production-backup:
+    name: Backup Successful Production Deployment
+    runs-on: ubuntu-latest
+
+    # Only process successful Railway production deployments
+    if: >
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'production'
+
+    steps:
+      - name: Check production deployment
+        run: |
+          echo "Production deployment succeeded."
+          echo "Commit: ${{ github.event.deployment.sha }}"
+          echo "Environment: ${{ github.event.deployment.environment }}"
+
+      - name: Update production-backup
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_SHA: ${{ github.event.deployment.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          echo "Updating production-backup to:"
+          echo "$DEPLOYED_SHA"
+
+          gh api \
+            --method PATCH \
+            "/repos/$REPOSITORY/git/refs/heads/production-backup" \
+            -f sha="$DEPLOYED_SHA" \
+            -F force=true
+
+          echo "production-backup updated successfully."
