@@ -15,10 +15,63 @@ import type {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-function getCsrfToken(): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp("(^|;\\s*)vaultly_csrf=([^;]*)"));
-  return match ? decodeURIComponent(match[2]) : null;
+// In-memory CSRF token store, synchronized with sessionStorage for tab lifecycle persistence
+let csrfTokenInMemory: string | null = null;
+
+export function getCsrfToken(): string | null {
+  if (csrfTokenInMemory) {
+    return csrfTokenInMemory;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = window.sessionStorage.getItem("vaultly_csrf");
+      if (stored) {
+        csrfTokenInMemory = stored;
+        return stored;
+      }
+    } catch {
+      // Ignore storage access errors (e.g. sandboxed iframes or private mode restrictions)
+    }
+  }
+  return null;
+}
+
+export function setCsrfToken(token: string | null | undefined): void {
+  csrfTokenInMemory = token || null;
+  if (typeof window !== "undefined") {
+    try {
+      if (token) {
+        window.sessionStorage.setItem("vaultly_csrf", token);
+      } else {
+        window.sessionStorage.removeItem("vaultly_csrf");
+      }
+    } catch {
+      // Ignore storage access errors
+    }
+  }
+}
+
+export function clearCsrfToken(): void {
+  setCsrfToken(null);
+}
+
+function extractAndStoreCsrfToken(data: unknown): string | null {
+  if (data && typeof data === "object") {
+    const directToken = (data as Record<string, unknown>).csrfToken;
+    if (typeof directToken === "string" && directToken.length > 0) {
+      setCsrfToken(directToken);
+      return directToken;
+    }
+    const nestedData = (data as Record<string, unknown>).data;
+    if (nestedData && typeof nestedData === "object") {
+      const nestedToken = (nestedData as Record<string, unknown>).csrfToken;
+      if (typeof nestedToken === "string" && nestedToken.length > 0) {
+        setCsrfToken(nestedToken);
+        return nestedToken;
+      }
+    }
+  }
+  return null;
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -30,13 +83,29 @@ async function attemptRefresh(): Promise<boolean> {
 
   refreshPromise = (async () => {
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const currentCsrf = getCsrfToken();
+      if (currentCsrf) {
+        headers["X-CSRF-Token"] = currentCsrf;
+      }
+
       const res = await fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers,
         cache: "no-store",
       });
-      return res.ok;
+
+      if (!res.ok) {
+        clearCsrfToken();
+        return false;
+      }
+
+      const body = await res.json().catch(() => ({}));
+      extractAndStoreCsrfToken(body);
+      return true;
     } catch {
       return false;
     } finally {
@@ -48,6 +117,7 @@ async function attemptRefresh(): Promise<boolean> {
 }
 
 function handleSessionExpired() {
+  clearCsrfToken();
   if (typeof window !== "undefined") {
     const pathname = window.location.pathname;
     const isAuthRoute =
@@ -85,12 +155,30 @@ async function request<T>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...((options.headers as Record<string, string>) || {}),
   };
 
-  // Add CSRF token for all mutating requests whenever available
-  if (isMutating) {
-    const csrf = getCsrfToken();
+  if (options.headers) {
+    if (options.headers instanceof Headers) {
+      options.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+    } else if (Array.isArray(options.headers)) {
+      options.headers.forEach(([key, value]) => {
+        headers[key] = value;
+      });
+    } else {
+      Object.assign(headers, options.headers);
+    }
+  }
+
+  // For mutating protected requests, ensure CSRF token is available
+  if (isMutating && !isPublicAuthEndpoint) {
+    let csrf = getCsrfToken();
+    if (!csrf && !isRetry) {
+      // Proactively refresh to get CSRF token if session cookies are present
+      await attemptRefresh();
+      csrf = getCsrfToken();
+    }
     if (csrf) {
       headers["X-CSRF-Token"] = csrf;
     }
@@ -115,6 +203,18 @@ async function request<T>(
     }
   }
 
+  // Handle 403 CSRF mismatch by attempting token refresh and retrying once
+  if (response.status === 403 && !isPublicAuthEndpoint && !isRetry) {
+    const errorBody = await response.clone().json().catch(() => ({}));
+    const message = (errorBody?.message || "").toString().toLowerCase();
+    if (message.includes("csrf")) {
+      const refreshed = await attemptRefresh();
+      if (refreshed) {
+        return request<T>(path, options, true);
+      }
+    }
+  }
+
   if (!response.ok) {
     if (response.status === 401 && !isPublicAuthEndpoint) {
       handleSessionExpired();
@@ -126,7 +226,11 @@ async function request<T>(
   }
 
   if (response.status === 204) return undefined as T;
+
   const body = await response.json();
+  // Automatically capture and store CSRF token from any response
+  extractAndStoreCsrfToken(body);
+
   return (body as ApiResponse<T>).data ?? body;
 }
 
@@ -143,7 +247,13 @@ export const api = {
         method: "POST",
         body: JSON.stringify(payload),
       }),
-    logout: () => request<void>("/auth/logout", { method: "POST" }),
+    logout: async () => {
+      try {
+        return await request<void>("/auth/logout", { method: "POST" });
+      } finally {
+        clearCsrfToken();
+      }
+    },
     verifyMfa: (payload: { code: string }) =>
       request<{ user?: User; csrfToken?: string }>("/auth/mfa/verify", {
         method: "POST",
@@ -158,11 +268,16 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ code }),
       }),
-    changePassword: (payload: { currentPassword: string; newPassword: string }) =>
-      request<{ ok: boolean; message: string }>("/auth/change-password", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
+    changePassword: async (payload: { currentPassword: string; newPassword: string }) => {
+      try {
+        return await request<{ ok: boolean; message: string }>("/auth/change-password", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      } finally {
+        clearCsrfToken();
+      }
+    },
     verifyPassword: (password: string) =>
       request<{ valid: boolean }>("/auth/verify-password", {
         method: "POST",
@@ -301,4 +416,3 @@ export const api = {
       request<void>(`/admin/users/${id}/disable`, { method: "POST" }),
   },
 };
-
