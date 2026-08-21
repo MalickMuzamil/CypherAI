@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Activity, Globe, Monitor } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -30,10 +30,10 @@ export function AuditLogPage() {
   }, []);
 
   const totalPages = Math.ceil(events.length / ITEMS_PER_PAGE);
-  const paginatedEvents = events.slice(
+  const paginatedEvents = useMemo(() => events.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
-  );
+  ), [events, page]);
 
   return (
     <AppShell>

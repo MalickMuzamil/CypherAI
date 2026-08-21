@@ -65,25 +65,19 @@ export function Modal({
     >
       {/* ── Backdrop ── */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-[5px]"
+        className="modal-backdrop-animate absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
-        style={{ animation: "modalFadeIn 0.18s ease both" }}
       />
 
       {/* ── Panel ── uses CSS variables so it matches light/dark theme */}
       <div
         className={`
-          relative w-full ${sizeMap[size]}
+          modal-panel-animate relative w-full ${sizeMap[size]}
           rounded-[22px] overflow-hidden
           border border-[var(--line-strong)]
+          bg-[var(--surface-solid)]
           shadow-[var(--shadow)]
         `}
-        style={{
-          animation: "modalSlideIn 0.22s cubic-bezier(0.16,1,0.3,1) both",
-          background: "var(--surface-solid)",
-          backdropFilter: "blur(32px) saturate(150%)",
-          WebkitBackdropFilter: "blur(32px) saturate(150%)",
-        }}
       >
         {/* Top shimmer */}
         <div
@@ -123,17 +117,6 @@ export function Modal({
           {children}
         </div>
       </div>
-
-      <style>{`
-        @keyframes modalFadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        @keyframes modalSlideIn {
-          from { opacity: 0; transform: translateY(16px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0)   scale(1); }
-        }
-      `}</style>
     </div>
   );
 

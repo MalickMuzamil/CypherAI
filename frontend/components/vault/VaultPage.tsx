@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -50,7 +50,7 @@ export function VaultPage() {
   const ITEMS_PER_PAGE = 6;
   const { showToast } = useToast();
 
-  async function load(q = "") {
+  const load = useCallback(async (q = "") => {
     setLoading(true);
     try {
       const data = await api.credentials.list(q);
@@ -61,9 +61,9 @@ export function VaultPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  async function loadSharedWithMe() {
+  const loadSharedWithMe = useCallback(async () => {
     setLoadingShared(true);
     try {
       const data = await api.shares.list();
@@ -73,7 +73,7 @@ export function VaultPage() {
     } finally {
       setLoadingShared(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -81,13 +81,13 @@ export function VaultPage() {
       setPage(1);
     }, 250);
     return () => clearTimeout(t);
-  }, [search]);
+  }, [search, load]);
 
   useEffect(() => {
     if (activeTab === "shared-with-me") {
       loadSharedWithMe();
     }
-  }, [activeTab]);
+  }, [activeTab, loadSharedWithMe]);
 
   async function confirmDelete() {
     if (!credentialToDelete) return;
@@ -271,7 +271,7 @@ export function VaultPage() {
   );
 }
 
-function CredentialCard({
+const CredentialCard = React.memo(function CredentialCard({
   item,
   onDelete,
   onReload,
@@ -579,9 +579,9 @@ function CredentialCard({
       </Modal>
     </>
   );
-}
+});
 
-function SharedWithMeView({
+const SharedWithMeView = React.memo(function SharedWithMeView({
   shares,
   loading,
   onReload,
@@ -752,4 +752,4 @@ function SharedWithMeView({
       })}
     </div>
   );
-}
+});

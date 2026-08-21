@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, ShieldAlert, UserCheck, UserX, Search } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -38,6 +38,25 @@ export function AdminUsersPage() {
   } | null>(null);
   const [updatingRole, setUpdatingRole] = useState(false);
 
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.admin.users();
+      const normalized: User[] = (data || []).map((u: any) => ({
+        ...u,
+        id: String(u.id || u._id),
+      }));
+      setUsers(normalized);
+      setError("");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unable to load users";
+      setError(msg);
+      showToast(msg, "error", "API Error");
+    } finally {
+      setLoading(false);
+    }
+  }, [showToast]);
+
   useEffect(() => {
     if (!authLoading) {
       if (!currentUser) {
@@ -55,26 +74,7 @@ export function AdminUsersPage() {
       }
       loadUsers();
     }
-  }, [currentUser, authLoading, router, showToast]);
-
-  async function loadUsers() {
-    setLoading(true);
-    try {
-      const data = await api.admin.users();
-      const normalized: User[] = (data || []).map((u: any) => ({
-        ...u,
-        id: String(u.id || u._id),
-      }));
-      setUsers(normalized);
-      setError("");
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Unable to load users";
-      setError(msg);
-      showToast(msg, "error", "API Error");
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [currentUser, authLoading, router, showToast, loadUsers]);
 
   function handleRoleChangeSelect(targetUser: User, newRole: Role) {
     if (
@@ -172,20 +172,20 @@ export function AdminUsersPage() {
     }
   }
 
-  const filteredUsers = users.filter((u) => {
+  const filteredUsers = useMemo(() => users.filter((u) => {
     const q = search.toLowerCase();
     return (
       u.name.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q) ||
       u.role.toLowerCase().includes(q)
     );
-  });
+  }), [users, search]);
 
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-  const paginatedUsers = filteredUsers.slice(
+  const paginatedUsers = useMemo(() => filteredUsers.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
-  );
+  ), [filteredUsers, page]);
 
   if (authLoading) {
     return (

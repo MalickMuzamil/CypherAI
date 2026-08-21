@@ -36,7 +36,7 @@ function ToastItemView({ item, onClose }: { item: ToastItem; onClose: () => void
   const tone = item.tone === "success" ? "text-emerald-500" : item.tone === "error" ? "text-rose-500" : item.tone === "warning" ? "text-amber-500" : "text-[var(--accent)]";
 
   return (
-    <div className="glass pointer-events-auto flex items-start gap-3 rounded-[18px] p-4 shadow-2xl">
+    <div className="glass toast-item-animate pointer-events-auto flex items-start gap-3 rounded-[18px] p-4 shadow-2xl">
       <Icon size={19} className={`mt-0.5 shrink-0 ${tone}`} />
       <div className="min-w-0 flex-1">
         {item.title && <div className="text-sm font-semibold">{item.title}</div>}
