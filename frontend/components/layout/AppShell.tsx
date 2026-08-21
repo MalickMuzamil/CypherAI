@@ -121,8 +121,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <main className="min-h-screen p-3 sm:p-5 lg:p-7">
-      <div className="app-frame relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1580px] overflow-hidden">
+    <main className="h-screen overflow-hidden p-3 sm:p-5 lg:p-7">
+      <div className="app-frame relative mx-auto flex h-full max-w-[1580px] overflow-hidden">
         {/* Mobile backdrop */}
         <button
           aria-label="Close navigation"
@@ -136,6 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className={`fixed left-3 top-3 bottom-3 z-40 flex w-[248px] shrink-0 flex-col rounded-[24px] border border-[var(--line)] bg-[var(--surface-solid)] p-5 shadow-2xl transition-transform duration-200 ease-out md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none md:translate-x-0 md:bg-[var(--surface-strong)] ${
             open ? "translate-x-0" : "-translate-x-[calc(100%+2rem)] md:translate-x-0"
           }`}
+          style={{ willChange: 'transform', overflow: 'hidden' }}
         >
           <div className="mb-9 flex items-center gap-3 px-2">
             <div className="grid h-11 w-11 place-items-center rounded-[17px] border border-[var(--accent)]/30 bg-[var(--accent-soft)] text-[var(--accent)] shadow-md shadow-[var(--accent)]/10">
@@ -215,10 +216,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <section className="relative min-w-0 flex-1 overflow-hidden">
+        <section
+          className="relative min-w-0 flex-1 overflow-y-auto overscroll-contain scrollbar-hide"
+          style={{ contain: 'content' }}
+        >
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/35 to-transparent" />
 
-          <header className="sticky top-0 z-20 flex min-h-[78px] items-center gap-3 border-b border-[var(--line)] bg-[var(--surface)] px-4 backdrop-blur-2xl sm:px-6 lg:px-8">
+          <header
+            className="glass-header sticky top-0 z-20 flex min-h-[78px] items-center gap-3 px-4 sm:px-6 lg:px-8"
+          >
             <button
               className="icon-button h-10 w-10 md:hidden"
               onClick={() => setOpen(true)}
