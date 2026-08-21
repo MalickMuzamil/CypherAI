@@ -15,6 +15,7 @@ export function useAutoLock() {
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastResetRef = useRef<number>(0);
 
   const lock = useCallback(() => {
     setIsLocked(true);
@@ -35,6 +36,7 @@ export function useAutoLock() {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
+    lastResetRef.current = Date.now();
     if (autoLockMinutes > 0 && !isLocked) {
       timerRef.current = setTimeout(() => {
         setIsLocked(true);
@@ -48,11 +50,15 @@ export function useAutoLock() {
       return;
     }
 
-    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
-
+    const THROTTLE_MS = 2000;
     const handleActivity = () => {
-      resetTimer();
+      const now = Date.now();
+      if (now - lastResetRef.current > THROTTLE_MS) {
+        resetTimer();
+      }
     };
+
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
 
     events.forEach((evt) => {
       window.addEventListener(evt, handleActivity, { passive: true });

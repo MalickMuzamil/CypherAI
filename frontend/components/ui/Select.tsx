@@ -36,24 +36,32 @@ export function Select({
   const ref = useRef<HTMLDivElement>(null);
 
   // Extract options from optionsProp or React children (<option>)
-  const parsedOptions: OptionItem[] = optionsProp || [];
-  if (!optionsProp && children) {
-    React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child) && child.type === "option") {
-        const props = child.props as { value?: any; children?: any; disabled?: boolean };
-        parsedOptions.push({
-          value: String(props.value ?? props.children ?? ""),
-          label: String(props.children ?? props.value ?? ""),
-          disabled: Boolean(props.disabled),
-        });
-      }
-    });
-  }
+  const parsedOptions = React.useMemo<OptionItem[]>(() => {
+    if (optionsProp) return optionsProp;
+    const list: OptionItem[] = [];
+    if (children) {
+      React.Children.forEach(children, (child) => {
+        if (React.isValidElement(child) && child.type === "option") {
+          const props = child.props as { value?: any; children?: any; disabled?: boolean };
+          list.push({
+            value: String(props.value ?? props.children ?? ""),
+            label: String(props.children ?? props.value ?? ""),
+            disabled: Boolean(props.disabled),
+          });
+        }
+      });
+    }
+    return list;
+  }, [optionsProp, children]);
 
-  const selectedOption = parsedOptions.find((o) => String(o.value) === String(value));
+  const selectedOption = React.useMemo(
+    () => parsedOptions.find((o) => String(o.value) === String(value)),
+    [parsedOptions, value]
+  );
   const displayLabel = selectedOption ? selectedOption.label : placeholder;
 
   useEffect(() => {
+    if (!open) return;
     function handleClickOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
@@ -61,15 +69,18 @@ export function Select({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [open]);
 
-  function handleSelect(val: string) {
-    if (disabled) return;
-    setOpen(false);
-    if (onChange) {
-      onChange({ target: { value: val } });
-    }
-  }
+  const handleSelect = React.useCallback(
+    (val: string) => {
+      if (disabled) return;
+      setOpen(false);
+      if (onChange) {
+        onChange({ target: { value: val } });
+      }
+    },
+    [disabled, onChange]
+  );
 
   return (
     <div className="space-y-2 relative" ref={ref} title={title}>
@@ -92,7 +103,7 @@ export function Select({
       </button>
 
       {open && !disabled && (
-        <div className="absolute left-0 right-0 top-full z-[9999] mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-[var(--line-strong)] bg-[var(--page-deep)] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.4)] scrollbar-thin">
+        <div className="absolute left-0 right-0 top-full z-[9999] mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-[var(--line-strong)] bg-[var(--page-deep)] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.4)] scrollbar-thin modal-panel-animate">
           {parsedOptions.map((opt) => {
             const isSelected = String(opt.value) === String(value);
             return (

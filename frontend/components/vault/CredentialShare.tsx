@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Send,
   Trash2,
@@ -25,7 +25,7 @@ interface CredentialShareProps {
   onClose: () => void;
 }
 
-export function CredentialShareModal({
+export const CredentialShareModal = React.memo(function CredentialShareModal({
   credential,
   open,
   onClose,
@@ -236,4 +236,4 @@ export function CredentialShareModal({
       </div>
     </Modal>
   );
-}
+});

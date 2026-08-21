@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   History,
   RotateCcw,
@@ -28,7 +28,7 @@ interface CredentialHistoryProps {
   onRestored: () => void;
 }
 
-export function CredentialHistory({
+export const CredentialHistory = React.memo(function CredentialHistory({
   credential,
   open,
   onClose,
@@ -239,4 +239,4 @@ export function CredentialHistory({
       </div>
     </Modal>
   );
-}
+});

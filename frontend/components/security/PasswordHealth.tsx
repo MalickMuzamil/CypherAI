@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   ShieldAlert,
@@ -20,12 +20,12 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useToast } from "@/components/ui/Toast";
 
-export function PasswordHealth() {
+export const PasswordHealth = React.memo(function PasswordHealth() {
   const [health, setHealth] = useState<PasswordHealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
-  async function loadHealth() {
+  const loadHealth = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.credentials.health();
@@ -39,35 +39,36 @@ export function PasswordHealth() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [showToast]);
 
   useEffect(() => {
     loadHealth();
-  }, []);
+  }, [loadHealth]);
 
-  const aggregate = health?.aggregate || {
+  const aggregate = useMemo(() => health?.aggregate || {
     score: 0,
     total: 0,
     weakCount: 0,
     reuseCount: 0,
     oldCount: 0,
     strongCount: 0,
-  };
+  }, [health]);
 
-  function getScoreColor(score: number) {
+  const getScoreColor = useCallback((score: number) => {
     if (score >= 80) return "text-emerald-400 border-emerald-500/40 bg-emerald-500/10";
     if (score >= 60) return "text-amber-400 border-amber-500/40 bg-amber-500/10";
     return "text-rose-400 border-rose-500/40 bg-rose-500/10";
-  }
+  }, []);
 
-  function getScoreTone(score: number): "success" | "warning" | "danger" {
+  const getScoreTone = useCallback((score: number): "success" | "warning" | "danger" => {
     if (score >= 80) return "success";
     if (score >= 60) return "warning";
     return "danger";
-  }
+  }, []);
 
-  const atRiskCredentials = (health?.credentials || []).filter(
-    (c) => c.isWeak || c.isReused || c.isOld
+  const atRiskCredentials = useMemo(
+    () => (health?.credentials || []).filter((c) => c.isWeak || c.isReused || c.isOld),
+    [health]
   );
 
   return (
@@ -220,4 +221,4 @@ export function PasswordHealth() {
       )}
     </Card>
   );
-}
+});

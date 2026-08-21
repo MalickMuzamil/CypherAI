@@ -123,18 +123,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-screen p-3 sm:p-5 lg:p-7">
       <div className="app-frame relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1580px] overflow-hidden">
-        {open && (
-          <button
-            aria-label="Close navigation"
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm md:hidden"
-          />
-        )}
+        {/* Mobile backdrop */}
+        <button
+          aria-label="Close navigation"
+          onClick={() => setOpen(false)}
+          className={`fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity duration-200 md:hidden ${
+            open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        />
 
         <aside
-          className={`${
-            open ? "fixed left-3 top-3 bottom-3 z-40 flex shadow-2xl rounded-[24px]" : "hidden"
-          } w-[248px] shrink-0 flex-col border border-[var(--line)] bg-[var(--surface-strong)] p-5 backdrop-blur-3xl md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none`}
+          className={`fixed left-3 top-3 bottom-3 z-40 flex w-[248px] shrink-0 flex-col rounded-[24px] border border-[var(--line)] bg-[var(--surface-solid)] p-5 shadow-2xl transition-transform duration-200 ease-out md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none md:translate-x-0 md:bg-[var(--surface-strong)] ${
+            open ? "translate-x-0" : "-translate-x-[calc(100%+2rem)] md:translate-x-0"
+          }`}
         >
           <div className="mb-9 flex items-center gap-3 px-2">
             <div className="grid h-11 w-11 place-items-center rounded-[17px] border border-[var(--accent)]/30 bg-[var(--accent-soft)] text-[var(--accent)] shadow-md shadow-[var(--accent)]/10">
@@ -149,6 +150,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               className="icon-button ml-auto h-9 w-9 md:hidden"
               onClick={() => setOpen(false)}
+              aria-label="Close menu"
             >
               <X size={16} />
             </button>
@@ -160,7 +162,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {nav}
 
           <div className="mt-auto pt-8">
-            <div className="mb-4 rounded-[22px] border border-white/40 dark:border-white/10 bg-gradient-to-br from-white/70 via-white/40 to-white/20 dark:from-white/10 dark:via-white/5 dark:to-transparent p-4 shadow-xl shadow-black/5 backdrop-blur-2xl transition-all duration-300 hover:border-[var(--accent)]/40 hover:shadow-[0_20px_40px_rgba(239,106,79,0.12)]">
+            <div className="mb-4 rounded-[22px] border border-white/40 dark:border-white/10 bg-gradient-to-br from-white/70 via-white/40 to-white/20 dark:from-white/10 dark:via-white/5 dark:to-transparent p-4 shadow-sm transition-all duration-200 hover:border-[var(--accent)]/40 hover:shadow-[0_12px_28px_rgba(239,106,79,0.10)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-[var(--text)]">
                   <span className="relative flex h-2 w-2">
@@ -175,13 +177,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="mt-3.5 space-y-2 border-t border-[var(--line)]/60 pt-3 text-[11px]">
-                <div className="flex items-center justify-between rounded-xl bg-white/50 dark:bg-white/5 px-2.5 py-1.5 border border-white/30 dark:border-white/5 backdrop-blur-md">
+                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <ShieldCheck size={13} className="text-[var(--accent)]" /> Encryption
                   </span>
                   <span className="font-semibold font-mono text-[var(--text)]">AES-256-GCM</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl bg-white/50 dark:bg-white/5 px-2.5 py-1.5 border border-white/30 dark:border-white/5 backdrop-blur-md">
+                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <LockKeyhole size={13} className="text-emerald-500" /> 2FA / TOTP
                   </span>
@@ -189,13 +191,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {user?.mfaEnabled ? "Enabled ✓" : "Recommended"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl bg-white/50 dark:bg-white/5 px-2.5 py-1.5 border border-white/30 dark:border-white/5 backdrop-blur-md">
+                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <Fingerprint size={13} className="text-purple-500 dark:text-purple-400" /> Passkeys
                   </span>
                   <span className="font-semibold text-emerald-500 font-mono">WebAuthn</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl bg-white/50 dark:bg-white/5 px-2.5 py-1.5 border border-white/30 dark:border-white/5 backdrop-blur-md">
+                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <Activity size={13} className="text-sky-500" /> Session Guard
                   </span>

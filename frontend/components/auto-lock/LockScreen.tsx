@@ -79,20 +79,11 @@ export function LockScreen({ onUnlock }: LockScreenProps) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 backdrop-blur-2xl p-4"
-      style={{ animation: "modalFadeIn 0.25s ease both" }}
-    >
-      <div
-        className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-[var(--line-strong)] bg-[var(--surface-solid)] p-8 shadow-[var(--shadow)]"
-        style={{
-          backdropFilter: "blur(32px) saturate(150%)",
-          animation: "modalSlideIn 0.28s cubic-bezier(0.16,1,0.3,1) both",
-        }}
-      >
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 modal-backdrop-animate">
+      <div className="modal-panel-animate relative w-full max-w-md overflow-hidden rounded-[28px] border border-[var(--line-strong)] bg-[var(--surface-solid)] p-8 shadow-[var(--shadow)]">
         {/* Ambient glow effects */}
-        <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-[var(--accent)]/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-[var(--accent)]/15 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
 
         <div className="flex flex-col items-center text-center">
           <div className="relative mb-5 grid h-16 w-16 place-items-center rounded-[22px] border border-[var(--accent)]/30 bg-[var(--accent-soft)] text-[var(--accent)] shadow-xl shadow-[var(--accent)]/15">
@@ -154,17 +145,6 @@ export function LockScreen({ onUnlock }: LockScreenProps) {
           </button>
         </div>
       </div>
-
-      <style>{`
-        @keyframes modalFadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        @keyframes modalSlideIn {
-          from { opacity: 0; transform: translateY(20px) scale(0.96); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
     </div>
   );
 }

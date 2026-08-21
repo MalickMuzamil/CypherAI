@@ -1,5 +1,4 @@
-"use client";
-
+import React, { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
@@ -11,7 +10,7 @@ interface PaginationProps {
   itemName?: string;
 }
 
-export function Pagination({
+export const Pagination = React.memo(function Pagination({
   currentPage,
   totalPages,
   onPageChange,
@@ -24,19 +23,21 @@ export function Pagination({
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = totalItems ? Math.min(currentPage * itemsPerPage, totalItems) : currentPage * itemsPerPage;
 
-  // Generate page numbers array
-  const pages: number[] = [];
-  const maxButtons = 5;
-  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  const { pages, startPage, endPage } = useMemo(() => {
+    const list: number[] = [];
+    const maxButtons = 5;
+    let s = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let e = Math.min(totalPages, s + maxButtons - 1);
 
-  if (endPage - startPage + 1 < maxButtons) {
-    startPage = Math.max(1, endPage - maxButtons + 1);
-  }
+    if (e - s + 1 < maxButtons) {
+      s = Math.max(1, e - maxButtons + 1);
+    }
 
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
-  }
+    for (let i = s; i <= e; i++) {
+      list.push(i);
+    }
+    return { pages: list, startPage: s, endPage: e };
+  }, [currentPage, totalPages]);
 
   return (
     <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 sm:flex-row">
@@ -119,4 +120,4 @@ export function Pagination({
       </div>
     </div>
   );
-}
+});

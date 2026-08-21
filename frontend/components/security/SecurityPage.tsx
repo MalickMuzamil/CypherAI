@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Fingerprint,
   ShieldCheck,
@@ -49,7 +49,7 @@ export function SecurityPage() {
   const [revokingOthers, setRevokingOthers] = useState(false);
   const [showRevokeOthersModal, setShowRevokeOthersModal] = useState(false);
 
-  async function loadDevices() {
+  const loadDevices = useCallback(async () => {
     setLoadingDevices(true);
     try {
       const data = await api.devices.list();
@@ -59,11 +59,11 @@ export function SecurityPage() {
     } finally {
       setLoadingDevices(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     loadDevices();
-  }, []);
+  }, [loadDevices]);
 
   const [isReconfiguringMfa, setIsReconfiguringMfa] = useState(false);
   const [showReconfigureModal, setShowReconfigureModal] = useState(false);
@@ -594,4 +594,3 @@ export function SecurityPage() {
     </AppShell>
   );
 }
-
