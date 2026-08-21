@@ -10,7 +10,7 @@ import {
   ReactNode,
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { api } from "./api";
+import { api, clearCsrfToken } from "./api";
 import type { User } from "./types";
 import { useToast } from "@/components/ui/Toast";
 
@@ -62,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     function onSessionExpired(e: Event) {
+      clearCsrfToken();
       setUser(null);
       const customEvent = e as CustomEvent<{ message?: string }>;
       showToast(
@@ -97,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Continue to clear local state
     }
+    clearCsrfToken();
     setUser(null);
     showToast("You have been signed out.", "success", "Signed out");
     router.push("/login");
