@@ -17,7 +17,7 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Modal } from "@/components/ui/Modal";
@@ -41,6 +41,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { isLocked, lock, unlock } = useAutoLock();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileOpen]);
 
   useEffect(() => {
     if (!user) return;
@@ -209,13 +222,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setShowLogoutModal(true)}
-              className="nav-pill flex w-full items-center gap-3 rounded-[16px] px-3.5 py-3 text-sm font-medium"
-            >
-              <LogOut size={17} />
-              Sign out
-            </button>
           </div>
         </aside>
 
@@ -274,18 +280,59 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <LockKeyhole size={18} />
             </button>
             <ThemeToggle />
-            <div className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] py-1 pl-1 pr-3 shadow-sm">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-[var(--text)] text-[10px] font-bold text-[var(--page)]">
-                {getInitials(user?.name)}
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-[11px] font-semibold leading-4">
-                  {user?.name || "My vault"}
+            <div ref={profileRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setProfileOpen((o) => !o)}
+                className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] py-1 pl-1 pr-1 sm:pr-3 shadow-sm transition-colors text-left focus:outline-none"
+                aria-label="User menu"
+              >
+                <div className="grid h-8 w-8 place-items-center rounded-full bg-[var(--text)] text-[10px] font-bold text-[var(--page)] shrink-0">
+                  {getInitials(user?.name)}
                 </div>
-                <div className="text-[10px] text-[var(--subtle)]">
-                  Secure session
+                <div className="hidden sm:block">
+                  <div className="text-[11px] font-semibold leading-4 max-w-[100px] truncate">
+                    {user?.name || "My vault"}
+                  </div>
+                  <div className="text-[10px] text-[var(--subtle)]">
+                    Secure session
+                  </div>
                 </div>
-              </div>
+              </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 top-full z-[9999] mt-2 w-52 rounded-2xl border border-[var(--line-strong)] bg-[var(--page-deep)] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.35)] modal-panel-animate">
+                  <div className="px-3.5 py-2.5 border-b border-[var(--line)]">
+                    <p className="text-[11px] font-semibold text-[var(--text)] truncate">
+                      {user?.name || "My vault"}
+                    </p>
+                    <p className="text-[9px] text-[var(--subtle)] truncate mt-0.5">
+                      {user?.email || "Protected Session"}
+                    </p>
+                  </div>
+                  <div className="p-1 space-y-0.5">
+                    <Link
+                      href="/settings"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-[var(--text)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] transition-colors cursor-pointer"
+                    >
+                      <Settings size={14} />
+                      <span>Settings</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        setShowLogoutModal(true);
+                      }}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer text-left w-full"
+                    >
+                      <LogOut size={14} />
+                      <span>Sign out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </header>
 
