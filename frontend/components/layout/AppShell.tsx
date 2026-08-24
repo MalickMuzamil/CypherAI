@@ -133,7 +133,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         />
 
         <aside
-          className={`fixed left-3 top-3 bottom-3 z-40 flex w-[248px] shrink-0 flex-col rounded-[24px] border border-[var(--line)] bg-[var(--surface-solid)] p-5 shadow-2xl transition-transform duration-200 ease-out md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none md:translate-x-0 md:bg-[var(--surface-strong)] ${
+          className={`fixed left-3 top-3 bottom-3 z-40 flex w-[248px] shrink-0 flex-col rounded-[24px] border border-[var(--line)] bg-[var(--surface-solid)] p-5 shadow-2xl transition-transform duration-200 ease-out overflow-y-auto overscroll-contain scrollbar-hide md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none md:translate-x-0 md:bg-[var(--surface-strong)] md:overflow-hidden ${
             open ? "translate-x-0" : "-translate-x-[calc(100%+2rem)] md:translate-x-0"
           }`}
           style={{ willChange: 'transform', overflow: 'hidden' }}
