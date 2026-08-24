@@ -123,6 +123,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="h-screen overflow-hidden p-3 sm:p-5 lg:p-7">
       <div className="app-frame relative mx-auto flex h-full max-w-[1580px] overflow-hidden">
+        {/* ─── Aura UI atmospheric glow layer ─── decorative only, pointer-events-none */}
+        <div className="aura-layer" aria-hidden="true" />
+
         {/* Mobile backdrop */}
         <button
           aria-label="Close navigation"
@@ -133,10 +136,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         />
 
         <aside
-          className={`fixed left-3 top-3 bottom-3 z-40 flex w-[248px] shrink-0 flex-col rounded-[24px] border border-[var(--line)] bg-[var(--surface-solid)] p-5 shadow-2xl transition-transform duration-200 ease-out md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none md:translate-x-0 md:bg-[var(--surface-strong)] ${
+          className={`fixed left-3 top-3 bottom-3 z-40 flex w-[248px] shrink-0 flex-col rounded-[24px] border border-[var(--line)] bg-[var(--surface-solid)] p-5 shadow-2xl transition-transform duration-200 ease-out overflow-y-auto overscroll-contain scrollbar-hide md:relative md:inset-auto md:flex md:rounded-none md:border-r md:border-t-0 md:border-b-0 md:border-l-0 md:shadow-none md:translate-x-0 md:bg-[var(--surface-strong)] md:overflow-hidden ${
             open ? "translate-x-0" : "-translate-x-[calc(100%+2rem)] md:translate-x-0"
           }`}
-          style={{ willChange: 'transform', overflow: 'hidden' }}
+          style={{ willChange: 'transform' }}
         >
           <div className="mb-9 flex items-center gap-3 px-2">
             <div className="grid h-11 w-11 place-items-center rounded-[17px] border border-[var(--accent)]/30 bg-[var(--accent-soft)] text-[var(--accent)] shadow-md shadow-[var(--accent)]/10">
@@ -220,7 +223,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className="relative min-w-0 flex-1 overflow-y-auto overscroll-contain scrollbar-hide"
           style={{ contain: 'content' }}
         >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/35 to-transparent" />
+          {/* Top aura — accent glow line + ambient warm fade above content */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/40 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[var(--accent)]/[0.035] to-transparent" />
 
           <header
             className="glass-header sticky top-0 z-20 flex min-h-[78px] items-center gap-3 px-4 sm:px-6 lg:px-8"
