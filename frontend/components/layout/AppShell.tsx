@@ -179,7 +179,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {nav}
 
           <div className="mt-auto pt-8">
-            <div className="mb-4 rounded-[22px] border border-white/40 dark:border-white/10 bg-gradient-to-br from-white/70 via-white/40 to-white/20 dark:from-white/10 dark:via-white/5 dark:to-transparent p-4 shadow-sm transition-all duration-200 hover:border-[var(--accent)]/40 hover:shadow-[0_12px_28px_rgba(239,106,79,0.10)]">
+            <div className="mb-4 rounded-[22px] border border-[var(--line-strong)] bg-[var(--surface)] p-4 shadow-sm transition-all duration-200 hover:border-[var(--accent)]/40 hover:shadow-[0_12px_28px_rgba(239,106,79,0.10)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-[var(--text)]">
                   <span className="relative flex h-2 w-2">
@@ -194,13 +194,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="mt-3.5 space-y-2 border-t border-[var(--line)]/60 pt-3 text-[11px]">
-                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
+                <div className="flex items-center justify-between rounded-xl bg-[var(--surface-solid)]/70 px-2.5 py-1.5 border border-[var(--line)]">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <ShieldCheck size={13} className="text-[var(--accent)]" /> Encryption
                   </span>
                   <span className="font-semibold font-mono text-[var(--text)]">AES-256-GCM</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
+                <div className="flex items-center justify-between rounded-xl bg-[var(--surface-solid)]/70 px-2.5 py-1.5 border border-[var(--line)]">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <LockKeyhole size={13} className="text-emerald-500" /> 2FA / TOTP
                   </span>
@@ -208,13 +208,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {user?.mfaEnabled ? "Enabled ✓" : "Recommended"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
+                <div className="flex items-center justify-between rounded-xl bg-[var(--surface-solid)]/70 px-2.5 py-1.5 border border-[var(--line)]">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <Fingerprint size={13} className="text-purple-500 dark:text-purple-400" /> Passkeys
                   </span>
                   <span className="font-semibold text-emerald-500 font-mono">WebAuthn</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 border border-black/[0.04] dark:border-white/5">
+                <div className="flex items-center justify-between rounded-xl bg-[var(--surface-solid)]/70 px-2.5 py-1.5 border border-[var(--line)]">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--muted)]">
                     <Activity size={13} className="text-sky-500" /> Session Guard
                   </span>
@@ -227,7 +227,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <section
           className="relative min-w-0 flex-1 overflow-y-auto overscroll-contain scrollbar-hide"
-          style={{ contain: 'content' }}
         >
           {/* Top aura — accent glow line + ambient warm fade above content */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/40 to-transparent" />
