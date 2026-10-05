@@ -14,6 +14,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('vaultly-theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('theme-dark', 'dark');
+                } else {
+                  document.documentElement.classList.remove('theme-dark', 'dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning>
         <ToastProvider>
           <AuthProvider>{children}</AuthProvider>

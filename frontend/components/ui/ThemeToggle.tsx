@@ -11,6 +11,7 @@ export function ThemeToggle() {
     const isDark = stored === "dark";
     setDark(isDark);
     document.documentElement.classList.toggle("theme-dark", isDark);
+    document.documentElement.classList.toggle("dark", isDark);
   }, []);
 
   function toggle() {
@@ -18,6 +19,7 @@ export function ThemeToggle() {
     setDark(next);
     localStorage.setItem("vaultly-theme", next ? "dark" : "light");
     document.documentElement.classList.toggle("theme-dark", next);
+    document.documentElement.classList.toggle("dark", next);
   }
 
   return (

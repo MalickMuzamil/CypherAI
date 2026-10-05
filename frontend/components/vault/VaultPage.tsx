@@ -47,7 +47,7 @@ export function VaultPage() {
   const [credentialToDelete, setCredentialToDelete] = useState<Credential | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(6);
   const { showToast } = useToast();
 
   const load = useCallback(async (q = "") => {
@@ -105,10 +105,10 @@ export function VaultPage() {
     }
   }
 
-  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(items.length / itemsPerPage);
   const paginatedItems = items.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
   );
 
   return (
@@ -159,7 +159,7 @@ export function VaultPage() {
         <>
           <div className="relative mb-5">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--subtle)]"
               size={17}
             />
             <input
@@ -205,24 +205,24 @@ export function VaultPage() {
             </Card>
           ) : (
             <>
-              <div className="w-full overflow-x-auto pb-2 scrollbar-thin">
-                <div className="grid gap-4 min-w-[280px] sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                  {paginatedItems.map((item) => (
-                    <CredentialCard
-                      key={item.id}
-                      item={item}
-                      onDelete={() => setCredentialToDelete(item)}
-                      onReload={() => load(search)}
-                    />
-                  ))}
-                </div>
+              <div className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {paginatedItems.map((item) => (
+                  <CredentialCard
+                    key={item.id}
+                    item={item}
+                    onDelete={() => setCredentialToDelete(item)}
+                    onReload={() => load(search)}
+                  />
+                ))}
               </div>
 
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
                 totalItems={items.length}
-                itemsPerPage={ITEMS_PER_PAGE}
+                itemsPerPage={itemsPerPage}
+                itemsPerPageOptions={[6, 12, 24, 48]}
+                onItemsPerPageChange={setItemsPerPage}
                 onPageChange={setPage}
                 itemName="credentials"
               />
@@ -390,7 +390,7 @@ const CredentialCard = React.memo(function CredentialCard({
 
   return (
     <>
-      <Card className="flex flex-col justify-between transition-all hover:border-[var(--accent)]/40 hover:bg-[var(--accent-soft)]/20 hover:shadow-lg hover:shadow-[var(--accent)]/10">
+      <Card className="flex flex-col justify-between transition-all hover:border-[var(--accent)]/40 hover:bg-[var(--accent-soft)]/20 hover:shadow-lg hover:shadow-[var(--accent)]/10 w-full min-w-0 overflow-hidden">
         <div>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -416,7 +416,7 @@ const CredentialCard = React.memo(function CredentialCard({
             <Badge tone={categoryBadgeTone(item.category)}>{item.category}</Badge>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-3 py-2 text-xs">
+          <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-solid)]/70 px-3 py-2 text-xs">
             <div className="min-w-0 flex-1">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--subtle)]">Username</span>
               <div className="truncate font-medium text-[var(--text)]">{item.username || "—"}</div>
@@ -433,7 +433,7 @@ const CredentialCard = React.memo(function CredentialCard({
             )}
           </div>
 
-          <div className="mt-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3">
+          <div className="mt-3 rounded-xl border border-[var(--line)] bg-[var(--surface-solid)]/70 p-3">
             <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-[var(--subtle)] mb-1">
               <span>Password</span>
               <span className="flex items-center gap-1 text-emerald-400">

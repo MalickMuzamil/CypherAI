@@ -25,7 +25,7 @@ export function AdminUsersPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Disable user confirmation modal
   const [userToDisable, setUserToDisable] = useState<User | null>(null);
@@ -181,11 +181,11 @@ export function AdminUsersPage() {
     );
   }), [users, search]);
 
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = useMemo(() => filteredUsers.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  ), [filteredUsers, page]);
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  ), [filteredUsers, page, itemsPerPage]);
 
   if (authLoading) {
     return (
@@ -218,7 +218,7 @@ export function AdminUsersPage() {
 
       <div className="relative mb-5">
         <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--subtle)]"
           size={17}
         />
         <input
@@ -300,16 +300,18 @@ export function AdminUsersPage() {
                           <Badge tone="success">2FA Enabled</Badge>
                         )}
                       </div>
-                      <p className="mt-1 text-xs text-[var(--muted)]">{u.email}</p>
-                      <div className="mt-2 flex flex-wrap gap-4 text-[11px] text-[var(--subtle)]">
-                        <span>
-                          Joined: {new Date(u.createdAt).toLocaleDateString()}
+                      <p className="mt-1 text-xs text-[var(--muted)] font-medium">{u.email}</p>
+                      <div className="mt-2.5 flex flex-wrap gap-4 text-[11px] text-[var(--subtle)]">
+                        <span className="flex items-center gap-1">
+                          Joined: <strong className="font-semibold text-[var(--text)]">{new Date(u.createdAt).toLocaleDateString()}</strong>
                         </span>
-                        <span>
+                        <span className="flex items-center gap-1">
                           Last login:{" "}
-                          {u.lastLoginAt
-                            ? new Date(u.lastLoginAt).toLocaleString()
-                            : "Never"}
+                          <strong className="font-semibold text-[var(--text)]">
+                            {u.lastLoginAt
+                              ? new Date(u.lastLoginAt).toLocaleString()
+                              : "Never"}
+                          </strong>
                         </span>
                       </div>
                     </div>
@@ -371,7 +373,9 @@ export function AdminUsersPage() {
             currentPage={page}
             totalPages={totalPages}
             totalItems={filteredUsers.length}
-            itemsPerPage={ITEMS_PER_PAGE}
+            itemsPerPage={itemsPerPage}
+            itemsPerPageOptions={[5, 10, 25, 50]}
+            onItemsPerPageChange={setItemsPerPage}
             onPageChange={setPage}
             itemName="users"
           />

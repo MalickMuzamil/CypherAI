@@ -13,7 +13,7 @@ export function AuditLogPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     api.audit
@@ -29,17 +29,17 @@ export function AuditLogPage() {
       });
   }, []);
 
-  const totalPages = Math.ceil(events.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(events.length / itemsPerPage);
   const paginatedEvents = useMemo(() => events.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  ), [events, page]);
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  ), [events, page, itemsPerPage]);
 
   return (
     <AppShell>
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Audit activity</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--text)]">Audit activity</h1>
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Immutable security events supplied by the backend.
         </p>
       </div>
@@ -70,7 +70,7 @@ export function AuditLogPage() {
         </Card>
       ) : (
         <>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {paginatedEvents.map((e, idx) => (
               <Card key={e.id || (e as any)._id || idx} className="p-4">
                 <div className="flex items-start gap-3">
@@ -78,22 +78,24 @@ export function AuditLogPage() {
                     <Activity size={16} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap gap-2">
-                      <span className="text-sm font-medium">{e.action}</span>
-                      <span className="text-xs text-slate-600">{e.resourceType}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-[var(--text)]">{e.action}</span>
+                      <span className="rounded-md bg-black/[0.04] dark:bg-white/[0.08] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--subtle)]">
+                        {e.resourceType}
+                      </span>
                     </div>
-                    <p className="mt-1 text-xs text-slate-600">
+                    <p className="mt-1 text-xs text-[var(--muted)] font-medium">
                       {e.actorName || e.actorId} · {e.ipAddress || "IP unavailable"} ·{" "}
                       {new Date(e.createdAt).toLocaleString()}
                     </p>
-                    <div className="mt-2 flex gap-3 text-[11px] text-slate-700">
-                      <span>
-                        <Globe size={12} className="mr-1 inline" />
+                    <div className="mt-2 flex flex-wrap gap-4 text-[11px] text-[var(--subtle)]">
+                      <span className="flex items-center gap-1">
+                        <Globe size={13} className="text-[var(--accent)]" />
                         {e.ipAddress || "—"}
                       </span>
-                      <span>
-                        <Monitor size={12} className="mr-1 inline" />
-                        {e.userAgent || "—"}
+                      <span className="flex items-center gap-1 truncate max-w-full">
+                        <Monitor size={13} className="text-sky-400 shrink-0" />
+                        <span className="truncate">{e.userAgent || "—"}</span>
                       </span>
                     </div>
                   </div>
@@ -106,7 +108,9 @@ export function AuditLogPage() {
             currentPage={page}
             totalPages={totalPages}
             totalItems={events.length}
-            itemsPerPage={ITEMS_PER_PAGE}
+            itemsPerPage={itemsPerPage}
+            itemsPerPageOptions={[5, 10, 25, 50]}
+            onItemsPerPageChange={setItemsPerPage}
             onPageChange={setPage}
             itemName="audit logs"
           />

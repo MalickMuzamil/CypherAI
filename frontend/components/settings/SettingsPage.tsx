@@ -14,7 +14,7 @@ export function SettingsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -35,17 +35,17 @@ export function SettingsPage() {
     showToast("Notification marked as read", "success");
   }
 
-  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
   const paginatedNotifications = notifications.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
   );
 
   return (
     <AppShell>
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Settings & notifications</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--text)]">Settings & notifications</h1>
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Notification state is persisted by the backend.
         </p>
       </div>
@@ -109,7 +109,9 @@ export function SettingsPage() {
               currentPage={page}
               totalPages={totalPages}
               totalItems={notifications.length}
-              itemsPerPage={ITEMS_PER_PAGE}
+              itemsPerPage={itemsPerPage}
+              itemsPerPageOptions={[5, 10, 25, 50]}
+              onItemsPerPageChange={setItemsPerPage}
               onPageChange={setPage}
               itemName="notifications"
             />
